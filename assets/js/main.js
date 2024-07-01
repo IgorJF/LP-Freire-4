@@ -38,7 +38,6 @@
         });
     }
 
-    // Function to check CSS property compatibility
     window.canUse = function(property) {
         if (!window._canUse) window._canUse = document.createElement("div");
         var style = window._canUse.style,
@@ -46,7 +45,6 @@
         return property in style || "Moz" + up in style || "Webkit" + up in style || "O" + up in style || "ms" + up in style;
     };
 
-    // Polyfill for addEventListener for older browsers
     (function() {
         if ("addEventListener" in window) return;
         window.addEventListener = function(type, f) {
@@ -54,20 +52,18 @@
         };
     })();
 
-    // Execute after window loads
     window.addEventListener('load', function() {
         window.setTimeout(function() {
             $body.classList.remove('is-preload');
         }, 100);
     });
 
-    // Background image rotation settings
     (function() {
         var settings = {
             images: {
-                '/LPFREINETICP/images/bg1.jpg': 'center',
-                '/images/bg2.jpg': 'center',
-                '/images/bg3.jpg': 'center'
+                'LPFREINETICP/images/bg1.jpg': 'center',
+                'LPFREINETICP/images/bg2.jpg': 'center',
+                'LPFREINETICP/images/bg3.jpg': 'center'
             },
             delay: 6000
         };
