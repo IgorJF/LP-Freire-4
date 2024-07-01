@@ -3,7 +3,6 @@
 
     var $body = document.querySelector('body');
 
-    // Polyfill for classList for older browsers
     if (!("classList" in document.documentElement)) {
         Object.defineProperty(Element.prototype, 'classList', {
             get: function() {
@@ -62,8 +61,8 @@
         var settings = {
             images: {
                 'LPFREINETICP/images/bg1.jpg': 'center',
-                'LPFREINETICP/images/bg2.jpg': 'center',
-                'LPFREINETICP/images/bg3.jpg': 'center'
+                'images/bg2.jpg': 'center',
+                'images/bg3.jpg': 'center'
             },
             delay: 6000
         };
