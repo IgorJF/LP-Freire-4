@@ -60,7 +60,7 @@
     (function() {
         var settings = {
             images: {
-                'LPFREINETICP/images/bg1.jpg': 'center',
+                '/images/bg1.jpg': 'center',
                 'images/bg2.jpg': 'center',
                 'images/bg3.jpg': 'center'
             },
