@@ -1,79 +1,115 @@
 (function() {
+    "use strict";
 
-	"use strict";
+    var $body = document.querySelector('body');
 
-	var	$body = document.querySelector('body');
+    // Polyfill for classList for older browsers
+    if (!("classList" in document.documentElement)) {
+        Object.defineProperty(Element.prototype, 'classList', {
+            get: function() {
+                var self = this;
 
-			!function(){function t(t){this.el=t;for(var n=t.className.replace(/^\s+|\s+$/g,"").split(/\s+/),i=0;i<n.length;i++)e.call(this,n[i])}function n(t,n,i){Object.defineProperty?Object.defineProperty(t,n,{get:i}):t.__defineGetter__(n,i)}if(!("undefined"==typeof window.Element||"classList"in document.documentElement)){var i=Array.prototype,e=i.push,s=i.splice,o=i.join;t.prototype={add:function(t){this.contains(t)||(e.call(this,t),this.el.className=this.toString())},contains:function(t){return-1!=this.el.className.indexOf(t)},item:function(t){return this[t]||null},remove:function(t){if(this.contains(t)){for(var n=0;n<this.length&&this[n]!=t;n++);s.call(this,n,1),this.el.className=this.toString()}},toString:function(){return o.call(this," ")},toggle:function(t){return this.contains(t)?this.remove(t):this.add(t),this.contains(t)}},window.DOMTokenList=t,n(Element.prototype,"classList",function(){return new t(this)})}}();
+                function update(fn) {
+                    return function(value) {
+                        var classes = self.className.split(/\s+/),
+                            index = classes.indexOf(value);
 
-			window.canUse=function(p){if(!window._canUse)window._canUse=document.createElement("div");var e=window._canUse.style,up=p.charAt(0).toUpperCase()+p.slice(1);return p in e||"Moz"+up in e||"Webkit"+up in e||"O"+up in e||"ms"+up in e};
+                        fn(classes, index, value);
+                        self.className = classes.join(" ");
+                    };
+                }
 
-			(function(){if("addEventListener"in window)return;window.addEventListener=function(type,f){window.attachEvent("on"+type,f)}})();
+                return {
+                    add: update(function(classes, index, value) {
+                        if (!~index) classes.push(value);
+                    }),
+                    remove: update(function(classes, index) {
+                        if (~index) classes.splice(index, 1);
+                    }),
+                    toggle: update(function(classes, index, value) {
+                        if (~index) classes.splice(index, 1);
+                        else classes.push(value);
+                    }),
+                    contains: function(value) {
+                        return !!~self.className.split(/\s+/).indexOf(value);
+                    }
+                };
+            }
+        });
+    }
 
-		window.addEventListener('load', function() {
-			window.setTimeout(function() {
-				$body.classList.remove('is-preload');
-			}, 100);
-		});
+    // Function to check CSS property compatibility
+    window.canUse = function(property) {
+        if (!window._canUse) window._canUse = document.createElement("div");
+        var style = window._canUse.style,
+            up = property.charAt(0).toUpperCase() + property.slice(1);
+        return property in style || "Moz" + up in style || "Webkit" + up in style || "O" + up in style || "ms" + up in style;
+    };
 
-		(function() {
+    // Polyfill for addEventListener for older browsers
+    (function() {
+        if ("addEventListener" in window) return;
+        window.addEventListener = function(type, f) {
+            window.attachEvent("on" + type, f);
+        };
+    })();
 
-				var settings = {
+    // Execute after window loads
+    window.addEventListener('load', function() {
+        window.setTimeout(function() {
+            $body.classList.remove('is-preload');
+        }, 100);
+    });
 
-						images: {
-							'LPFREINETICP/images/bg1.jpg': 'center',
-							'/images/bg2.jpg': 'center',
-							'/images/bg3.jpg': 'center'
-						},
+    // Background image rotation settings
+    (function() {
+        var settings = {
+            images: {
+                '/LPFREINETICP/images/bg1.jpg': 'center',
+                '/images/bg2.jpg': 'center',
+                '/images/bg3.jpg': 'center'
+            },
+            delay: 6000
+        };
 
-						delay: 6000
+        var pos = 0,
+            lastPos = 0,
+            $wrapper, $bgs = [],
+            $bg,
+            k, v;
 
-				};
+        $wrapper = document.createElement('div');
+        $wrapper.id = 'bg';
+        $body.appendChild($wrapper);
 
-				var	pos = 0, lastPos = 0,
-					$wrapper, $bgs = [], $bg,
-					k, v;
+        for (k in settings.images) {
+            $bg = document.createElement('div');
+            $bg.style.backgroundImage = 'url("' + k + '")';
+            $bg.style.backgroundPosition = settings.images[k];
+            $wrapper.appendChild($bg);
+            $bgs.push($bg);
+        }
 
-				$wrapper = document.createElement('div');
-					$wrapper.id = 'bg';
-					$body.appendChild($wrapper);
+        $bgs[pos].classList.add('visible');
+        $bgs[pos].classList.add('top');
 
-				for (k in settings.images) {
+        if ($bgs.length == 1 || !canUse('transition')) return;
 
-						$bg = document.createElement('div');
-							$bg.style.backgroundImage = 'url("' + k + '")';
-							$bg.style.backgroundPosition = settings.images[k];
-							$wrapper.appendChild($bg);
+        window.setInterval(function() {
+            lastPos = pos;
+            pos++;
 
-						$bgs.push($bg);
+            if (pos >= $bgs.length)
+                pos = 0;
 
-				}
+            $bgs[lastPos].classList.remove('top');
+            $bgs[pos].classList.add('visible');
+            $bgs[pos].classList.add('top');
 
-				$bgs[pos].classList.add('visible');
-				$bgs[pos].classList.add('top');
+            window.setTimeout(function() {
+                $bgs[lastPos].classList.remove('visible');
+            }, settings.delay / 2);
 
-					if ($bgs.length == 1
-					||	!canUse('transition'))
-						return;
-
-				window.setInterval(function() {
-
-					lastPos = pos;
-					pos++;
-
-						if (pos >= $bgs.length)
-							pos = 0;
-
-						$bgs[lastPos].classList.remove('top');
-						$bgs[pos].classList.add('visible');
-						$bgs[pos].classList.add('top');
-
-						window.setTimeout(function() {
-							$bgs[lastPos].classList.remove('visible');
-						}, settings.delay / 2);
-
-				}, settings.delay);
-
-		})();
-
+        }, settings.delay);
+    })();
 })();
